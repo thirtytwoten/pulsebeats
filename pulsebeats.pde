@@ -3,13 +3,15 @@ import processing.sound.*;
 
 Serial port;
 AudioDevice device;
-SoundFile sf;
+SoundFile[] sounds;
 SinOsc sine;    
 
 int sensorReading;
 int BPM;
 int[] wavePoints;
 boolean beat = false;
+int selectedSound = 1;
+float pitch = 1;
 
 void setup() {
   findArduino();
@@ -43,7 +45,12 @@ void initSound() {
   sine = new SinOsc(this);
   sine.play();
   device = new AudioDevice(this, 48000, 32);
-  sf = new SoundFile(this, "1.aif"); 
+  sounds = new SoundFile[6];
+  sounds[1] = new SoundFile(this, "1.aif");
+  sounds[2] = new SoundFile(this, "2.aif");
+  sounds[3] = new SoundFile(this, "3.aif");
+  sounds[4] = new SoundFile(this, "4.aif");
+  sounds[5] = new SoundFile(this, "5.aif");
 }
 
 void drawWave(int newVal) {
@@ -61,7 +68,7 @@ void drawWave(int newVal) {
 void updateSound(int newVal) {
   sine.freq(newVal/2);
   if (beat) {
-    sf.play(0.5);
+    sounds[selectedSound].play(pitch);
     beat = false;
   }
 }
@@ -79,4 +86,34 @@ void serialEvent(Serial port){
      BPM = int(inData);                   // convert the string to usable int
      beat = true;
    }
+}
+
+void keyPressed() {
+  println("keyPressed: " + key);
+  if (key == CODED) {
+      if (keyCode == UP) {
+        pitch *= 2;
+      } else if (keyCode == DOWN) {
+        pitch /= 2;
+      }
+      pitch = constrain(pitch, 0.5, 100);
+  } else {
+    switch(key) {
+      case '1':
+        selectedSound = 1;
+        break;
+      case '2':
+        selectedSound = 2;
+        break;
+      case '3':
+        selectedSound = 3;
+        break;
+      case '4':
+        selectedSound = 4;
+        break;
+      case '5':
+        selectedSound = 5;
+        break;
+    }
+  }
 }
