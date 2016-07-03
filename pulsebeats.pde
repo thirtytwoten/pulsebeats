@@ -12,6 +12,8 @@ int[] wavePoints;
 boolean beat = false;
 int selectedSound = 1;
 float pitch = 1;
+color red = #EE0000;
+color bgOverlayColor = 0;
 
 void setup() {
   findArduino();
@@ -25,12 +27,15 @@ void setup() {
 }
   
 void draw() {
-  background(0);
-  fill(250,0,0);
-  text(BPM + " BPM", 20, 20);
   int newVal = 811 - sensorReading;
-  drawWave(newVal);
+  background(0);
+  fill(bgOverlayColor);
+  noStroke();
+  rect(0, 0, width, height);
   updateSound(newVal);
+  drawWave(newVal);
+  fill(red);
+  text(BPM + " BPM", 20, 20);
 }
 
 void findArduino() {
@@ -55,7 +60,7 @@ void initSound() {
 
 void drawWave(int newVal) {
   wavePoints[wavePoints.length - 1] = newVal;   // place new datapoint at end of array
-  stroke(250,0,0);
+  stroke(red);
   noFill();
   beginShape();   
   for (int i = 0; i < wavePoints.length-1; i++) {
@@ -68,6 +73,10 @@ void drawWave(int newVal) {
 void updateSound(int newVal) {
   sine.freq(newVal/2);
   if (beat) {
+    float r = random(255);
+    float g = random(255);
+    float b = random(255);
+    bgOverlayColor = color(r, g, b, 70);
     sounds[selectedSound].play(pitch);
     beat = false;
   }
@@ -89,7 +98,6 @@ void serialEvent(Serial port){
 }
 
 void keyPressed() {
-  println("keyPressed: " + key);
   if (key == CODED) {
       if (keyCode == UP) {
         pitch *= 2;
