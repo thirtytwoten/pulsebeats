@@ -71,7 +71,9 @@ void drawWave(int newVal) {
 }
 
 void updateSound(int newVal) {
-  sine.freq(newVal/2);
+  pitch = 1.5 - float(mouseY)/float(height);
+  println("pitch: " + pitch);
+  sine.freq(newVal/3);
   if (beat) {
     float r = random(255);
     float g = random(255);
@@ -99,12 +101,12 @@ void serialEvent(Serial port){
 
 void keyPressed() {
   if (key == CODED) {
-      if (keyCode == UP) {
-        pitch *= 2;
-      } else if (keyCode == DOWN) {
-        pitch /= 2;
-      }
-      pitch = constrain(pitch, 0.5, 100);
+      //if (keyCode == UP) {
+      //  pitch *= 2;
+      //} else if (keyCode == DOWN) {
+      //  pitch /= 2;
+      //}
+      //pitch = constrain(pitch, 0.5, 100);
   } else {
     switch(key) {
       case '1':
