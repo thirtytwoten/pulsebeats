@@ -11,7 +11,7 @@ int BPM;
 int[] wavePoints;
 boolean beat = false;
 int selectedSound = 1;
-float pitch = 1;
+float beatPitch = 1;
 color red = #EE0000;
 color bgOverlayColor = 0;
 
@@ -27,15 +27,40 @@ void setup() {
 }
   
 void draw() {
-  int newVal = 811 - sensorReading;
   background(0);
   fill(bgOverlayColor);
   noStroke();
   rect(0, 0, width, height);
-  updateSound(newVal);
-  drawWave(newVal);
+  updateSound();
+  drawWave();
   fill(red);
   text(BPM + " BPM", 20, 20);
+}
+
+void drawWave() {
+  int offset = 811;
+  wavePoints[wavePoints.length - 1] = offset - sensorReading;   // place new datapoint at end of array
+  stroke(red);
+  noFill();
+  beginShape();   
+  for (int i = 0; i < wavePoints.length-1; i++) {
+    wavePoints[i] = wavePoints[i+1];  // move waveform by shifting points 1px left      
+    vertex(i, wavePoints[i]); 
+  }
+  endShape();
+}
+
+void updateSound() {
+  beatPitch = 1.5 - mouseY/float(height);
+  sine.freq(sensorReading/940.0 * BPM);
+  if (beat) {
+    float r = random(255);
+    float g = random(255);
+    float b = random(255);
+    bgOverlayColor = color(r, g, b, 70);
+    sounds[selectedSound].play(beatPitch);
+    beat = false;
+  }
 }
 
 void findArduino() {
@@ -56,32 +81,6 @@ void initSound() {
   sounds[3] = new SoundFile(this, "3.aif");
   sounds[4] = new SoundFile(this, "4.aif");
   sounds[5] = new SoundFile(this, "5.aif");
-}
-
-void drawWave(int newVal) {
-  wavePoints[wavePoints.length - 1] = newVal;   // place new datapoint at end of array
-  stroke(red);
-  noFill();
-  beginShape();   
-  for (int i = 0; i < wavePoints.length-1; i++) {
-    wavePoints[i] = wavePoints[i+1];  // move waveform by shifting points 1px left      
-    vertex(i, wavePoints[i]); 
-  }
-  endShape();
-}
-
-void updateSound(int newVal) {
-  pitch = 1.5 - float(mouseY)/float(height);
-  println("pitch: " + pitch);
-  sine.freq(newVal/3);
-  if (beat) {
-    float r = random(255);
-    float g = random(255);
-    float b = random(255);
-    bgOverlayColor = color(r, g, b, 70);
-    sounds[selectedSound].play(pitch);
-    beat = false;
-  }
 }
 
 void serialEvent(Serial port){ 
