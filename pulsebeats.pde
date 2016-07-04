@@ -11,8 +11,7 @@ int BPM;
 int IBI; // HOLDS TIME BETWEN HEARTBEATS FROM ARDUINO
 int[] wavePoints;
 boolean beat = false;
-int selectedSound = 1;
-float beatPitch = 1;
+int selectedSound = 3;
 color red = #EE0000;
 color bgOverlayColor = 0;
 
@@ -36,7 +35,6 @@ void draw() {
   drawWave();
   fill(red);
   text(BPM + " BPM", 20, 20);
-  println("IBI " + IBI + "mS");
 }
 
 void drawWave() {
@@ -53,15 +51,29 @@ void drawWave() {
 }
 
 void updateSound() {
-  beatPitch = 1.5 - mouseY/float(height);
   sine.freq(sensorReading/940.0 * BPM);
   if (beat) {
+    beat = false;
     float r = random(255);
     float g = random(255);
     float b = random(255);
     bgOverlayColor = color(r, g, b, 70);
+    thread("playBeat");
+  }
+}
+
+void playBeat() {
+  float beatPitch = 1.5 - mouseY/float(height);
+  sounds[selectedSound].play(beatPitch);
+  //if (mouseX < width/4) {
+  //  delay(IBI/4);
+  //  beatPitch = 1.5 - mouseY/float(height);
+  //  sounds[selectedSound].play(beatPitch);
+  //}
+  if (mouseX < width/2) {
+    delay(IBI/2);
+    beatPitch = 1.5 - mouseY/float(height);
     sounds[selectedSound].play(beatPitch);
-    beat = false;
   }
 }
 
