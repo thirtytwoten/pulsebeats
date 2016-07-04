@@ -6,7 +6,6 @@ AudioDevice device;
 SoundFile[] sounds;
 SinOsc sine;
 
-float KEYS = 24.0; //number of notes
 int sensorReading;
 int BPM;
 int IBI; // HOLDS TIME BETWEN HEARTBEATS FROM ARDUINO
@@ -59,23 +58,26 @@ void updateSound() {
     float g = random(255);
     float b = random(255);
     bgOverlayColor = color(r, g, b, 70);
-    thread("playNote");
+    thread("soundThread");
+  }
+}
+
+void soundThread() {
+  playNote();
+  if (mouseX < width/2.0) {
+    delay(int(IBI/2.0));
+    playNote();
+      if (mouseX < width/4) {
+        delay(int(IBI/4.0));
+        playNote();
+      }
   }
 }
 
 void playNote() {
+  float KEYS = 24.0; //number of notes
   float pitch = 2 - floor(mouseY/float(height) * KEYS)/KEYS;
   sounds[selectedSound].play(pitch);
-  if (mouseX < width/2.0) {
-    delay(int(IBI/2.0));
-    pitch = 2 - floor(mouseY/float(height) * KEYS)/KEYS;
-    sounds[selectedSound].play(pitch);
-      if (mouseX < width/4) {
-        delay(int(IBI/4.0));
-        pitch = 2 - floor(mouseY/float(height) * KEYS)/KEYS;
-        sounds[selectedSound].play(pitch);
-      }
-  }
 }
 
 void findArduino() {
