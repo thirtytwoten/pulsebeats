@@ -8,6 +8,7 @@ SinOsc sine;
 
 int sensorReading;
 int BPM;
+int IBI; // HOLDS TIME BETWEN HEARTBEATS FROM ARDUINO
 int[] wavePoints;
 boolean beat = false;
 int selectedSound = 1;
@@ -35,6 +36,7 @@ void draw() {
   drawWave();
   fill(red);
   text(BPM + " BPM", 20, 20);
+  println("IBI " + IBI + "mS");
 }
 
 void drawWave() {
@@ -95,6 +97,10 @@ void serialEvent(Serial port){
      inData = inData.substring(1);        // cut off the leading 'B'
      BPM = int(inData);                   // convert the string to usable int
      beat = true;
+   }
+   if (inData.charAt(0) == 'Q'){            // leading 'Q' means IBI data 
+     inData = inData.substring(1);        // cut off the leading 'Q'
+     IBI = int(inData);                   // convert the string to usable int
    }
 }
 
