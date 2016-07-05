@@ -2,28 +2,20 @@ import processing.serial.*;
 import processing.sound.*;
 
 Serial port;
-AudioDevice device;
-SoundFile[] sounds;
-SinOsc sine;
-
-SinOsc sinOsc;
+SinOsc pulseSonification;
+SinOsc beatSounds;
 Env env;
 float attackTime = 0.001;
 float sustainTime = 0.004;
 float sustainLevel = 0.3;
 float releaseTime = 0.4;
-
-
 int NOTE_COUNT = 8;
 float[] notes;
-float startingPitch = 2;
-
 int sensorReading;
 int BPM;
 int IBI; // HOLDS TIME BETWEN HEARTBEATS FROM ARDUINO
 int[] wavePoints;
 boolean beat = false;
-int selectedSound = 3;
 color red = #EE0000;
 color bgOverlayColor = 0;
 
@@ -63,13 +55,9 @@ void drawWave() {
 }
 
 void updateSound() {
-  sine.freq(sensorReading/940.0 * BPM);
+  pulseSonification.freq(sensorReading/940.0 * BPM);
   if (beat) {
     beat = false;
-    float r = random(255);
-    float g = random(255);
-    float b = random(255);
-    bgOverlayColor = color(r, g, b, 70);
     thread("soundThread");
   }
 }
@@ -88,11 +76,12 @@ void soundThread() {
 
 void playNote() {
   int note = floor(mouseY/float(height) * NOTE_COUNT);
-  //float pitch = startingPitch - notes[note];
-  println(note + ": " + notes[note]);
-  //sounds[selectedSound].play(notes[note]);
-  sinOsc.play(notes[note], 1.0);
-  env.play(sinOsc, attackTime, sustainTime, sustainLevel, releaseTime);
+  beatSounds.play(notes[note], 1.0);
+  env.play(beatSounds, attackTime, sustainTime, sustainLevel, releaseTime);
+  float r = random(255);
+  float g = random(255);
+  float b = random(255);
+  bgOverlayColor = color(r, g, b, 70);
 }
 
 void findArduino() {
@@ -119,18 +108,11 @@ void initSound() {
   notes[1] = 493.883; //B
   notes[0] = 523.251; //C
   
-  sinOsc = new SinOsc(this);
+  beatSounds = new SinOsc(this);
   env  = new Env(this); 
   
-  sine = new SinOsc(this);
-  sine.play();
-  device = new AudioDevice(this, 48000, 32);
-  sounds = new SoundFile[6];
-  sounds[1] = new SoundFile(this, "1.aif");
-  sounds[2] = new SoundFile(this, "2.aif");
-  sounds[3] = new SoundFile(this, "3.aif");
-  sounds[4] = new SoundFile(this, "4.aif");
-  sounds[5] = new SoundFile(this, "5.aif");
+  pulseSonification = new SinOsc(this);
+  pulseSonification.play();
 }
 
 void serialEvent(Serial port){ 
@@ -150,33 +132,4 @@ void serialEvent(Serial port){
      inData = inData.substring(1);        // cut off the leading 'Q'
      IBI = int(inData);                   // convert the string to usable int
    }
-}
-
-void keyPressed() {
-  if (key == CODED) {
-      //if (keyCode == UP) {
-      //  pitch *= 2;
-      //} else if (keyCode == DOWN) {
-      //  pitch /= 2;
-      //}
-      //pitch = constrain(pitch, 0.5, 100);
-  } else {
-    switch(key) {
-      case '1':
-        selectedSound = 1;
-        break;
-      case '2':
-        selectedSound = 2;
-        break;
-      case '3':
-        selectedSound = 3;
-        break;
-      case '4':
-        selectedSound = 4;
-        break;
-      case '5':
-        selectedSound = 5;
-        break;
-    }
-  }
 }
