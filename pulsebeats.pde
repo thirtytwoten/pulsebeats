@@ -5,10 +5,6 @@ Serial port;
 SinOsc pulseSonification;
 SinOsc beatSounds;
 Env env;
-float attackTime = 0.001;
-float sustainTime = 0.004;
-float sustainLevel = 0.3;
-float releaseTime = 0.4;
 int NOTE_COUNT = 8;
 float[] notes;
 int sensorReading;
@@ -18,6 +14,7 @@ int[] wavePoints;
 boolean beat = false;
 color red = #EE0000;
 color bgOverlayColor = 0;
+float quarterPeriod;
 
 void setup() {
   findArduino();
@@ -38,7 +35,7 @@ void draw() {
   updateSound();
   drawWave();
   fill(red);
-  text(BPM + " BPM", 20, 20);
+  text(BPM + " BPM", 10, 20);
 }
 
 void drawWave() {
@@ -58,29 +55,35 @@ void updateSound() {
   pulseSonification.freq(sensorReading/940.0 * BPM);
   if (beat) {
     beat = false;
-    thread("soundThread");
+    playNote(1);
+    thread("midBeats");
   }
 }
 
-void soundThread() {
-  playNote();
-  if (mouseX < width/2.0) {
-    delay(int(IBI/2.0));
-    playNote();
-      if (mouseX < width/4) {
-        delay(int(IBI/4.0));
-        playNote();
-      }
+void midBeats() {
+  int quarterLength = IBI/4;
+  delay(quarterLength);
+  if (mouseX < width/4) {
+    playNote(1);
+  }
+  delay(quarterLength);
+  if (mouseX < width/2) {
+    playNote(2);
+  }
+  delay(quarterLength);
+  if (mouseX < width/4) {
+    playNote(1);
   }
 }
 
-void playNote() {
+void playNote(float length) {
   int note = floor(mouseY/float(height) * NOTE_COUNT);
   beatSounds.play(notes[note], 1.0);
-  env.play(beatSounds, attackTime, sustainTime, sustainLevel, releaseTime);
-  float r = random(255);
-  float g = random(255);
-  float b = random(255);
+  env.play(beatSounds, 0.001, 0.004, 0.3, 0.2 * length);
+  changeBg(random(255), random(255), random(255));
+}
+
+void changeBg(float r, float g, float b) {
   bgOverlayColor = color(r, g, b, 70);
 }
 
@@ -94,10 +97,10 @@ void findArduino() {
 
 void initSound() {
   notes = new float[NOTE_COUNT];
-  //float[] eightStep = {1,2,2,1,2,2,2,1};
+  //float[] eightStepMajor = {1,2,2,1,2,2,2,1};
   //notes[0] = 0;
   //for (int i = 1; i < notes.length; i++) {
-  //  notes[i] = notes[i-1] + eightStep[i%8]/12.0;
+  //  notes[i] = notes[i-1] + eightStepMajor[i%8]/12.0;
   //}
   notes[7] = 261.626; //C
   notes[6] = 293.665; //D
