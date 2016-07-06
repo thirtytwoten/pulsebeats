@@ -55,7 +55,7 @@ void updateSound() {
   pulseSonification.freq(sensorReading/940.0 * BPM);
   if (beat) {
     beat = false;
-    playNote(1);
+    playNote();
     thread("midBeats");
   }
 }
@@ -64,22 +64,22 @@ void midBeats() {
   int quarterLength = IBI/4;
   delay(quarterLength);
   if (mouseX < width/4) {
-    playNote(1);
+    playNote();
   }
   delay(quarterLength);
   if (mouseX < width/2) {
-    playNote(2);
+    playNote();
   }
   delay(quarterLength);
   if (mouseX < width/4) {
-    playNote(1);
+    playNote();
   }
 }
 
-void playNote(float length) {
+void playNote() {
   int note = floor(mouseY/float(height) * NOTE_COUNT);
   beatSounds.play(notes[note], 1.0);
-  env.play(beatSounds, 0.001, 0.004, 0.3, 0.2 * length);
+  env.play(beatSounds, 0.001, 0.004, 0.3, 0.1);
   changeBg(random(255), random(255), random(255));
 }
 
